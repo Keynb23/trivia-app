@@ -8,8 +8,6 @@ function Quiz({ formData, questionData, setQuestionData, token }) {
   const [lastRequestTime, setLastRequestTime] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
 
-
-  // Fetches a new question from API, enforces 10s delay to avoid rate limits
   const fetchQuestions = useCallback(async () => {
     setLoading(true);
     try {
@@ -36,7 +34,6 @@ function Quiz({ formData, questionData, setQuestionData, token }) {
     if (!questionData && !loading) fetchQuestions();
   }, [fetchQuestions, questionData, loading]);
 
-  // Step 2: Updated to track wrong answers
   const handleSubmit = () => {
     if (!selectedAnswer) {
       setError('Select an answer!');
@@ -48,70 +45,78 @@ function Quiz({ formData, questionData, setQuestionData, token }) {
     setShowResults(true);
   };
 
-// Step 3: Updated to check game over
-const handleStartOver = () => {
-  if (wrongCount >= 3) return;
-  setSelectedAnswer('');
-  setShowResults(false);
-  setQuestionData(null);
-  setError('');
-  fetchQuestions();
-};
+  const handleStartOver = () => {
+    if (wrongCount >= 3) return;
+    setSelectedAnswer('');
+    setShowResults(false);
+    setQuestionData(null);
+    setError('');
+    fetchQuestions();
+  };
 
-// Step 4: Added to reset game
-const handleEndGame = () => {
-  setWrongCount(0);
-  setSelectedAnswer('');
-  setShowResults(false);
-  setQuestionData(null);
-  setError('');
-  fetchQuestions();
-};
+  const handleEndGame = () => {
+    setWrongCount(0);
+    setSelectedAnswer('');
+    setShowResults(false);
+    setQuestionData(null);
+    setError('');
+    fetchQuestions();
+  };
 
-if (error) return <div>{error} <button onClick={() => { setError(''); fetchQuestions(); }}>Retry</button></div>;
-if (loading || !questionData?.question) return <div>Loading...</div>;
-
-// Step 5: Added game over condition
-if (wrongCount >= 3) {
-  return (
-    <div>
-      <h2>{formData.firstName}, game over! You got 3 wrong answers.</h2>
-      <button onClick={handleEndGame}>Play Again</button>
+  if (error) return (
+    <div className="Error-Container">
+      <p>{error}</p>
+      <button onClick={() => { setError(''); fetchQuestions(); }}>Retry</button>
     </div>
   );
-}
 
-const answers = [...questionData.incorrect_answers, questionData.correct_answer].sort();
+  if (loading || !questionData?.question) return <div className="Loading-Container">Loading...</div>;
 
-return (
-  <div>
-    {showResults ? (
-      <>
-        <h2>{formData.firstName}, you got it {selectedAnswer === questionData.correct_answer ? 'right!' : 'wrong.'}</h2>
-        {selectedAnswer !== questionData.correct_answer && <p>Correct answer: <span dangerouslySetInnerHTML={{ __html: questionData.correct_answer }} /></p>}
-        <p>Wrong answers: {wrongCount}/3</p> {/* Step 5: Added wrong count display */}
-        <button onClick={handleStartOver}>Next Question</button>
-      </>
-    ) : (
-      <>
-        <h2 dangerouslySetInnerHTML={{ __html: questionData.question }} />
-        {answers.map((answer, i) => (
-          <div key={answer}>
-            <input
-              type="radio"
-              id={`answer-${i}`}
-              name="answer"
-              value={answer}
-              onChange={e => setSelectedAnswer(e.target.value)}
-            />
-            <label htmlFor={`answer-${i}`} dangerouslySetInnerHTML={{ __html: answer }} />
+  if (wrongCount >= 3) {
+    return (
+      <div className="GameOver-Container">
+        <h2>{formData.firstName}, game over! You got 3 wrong answers.</h2>
+        <button onClick={handleEndGame}>Play Again</button>
+      </div>
+    );
+  }
+
+  const answers = [...questionData.incorrect_answers, questionData.correct_answer].sort();
+
+  return (
+    <div className="Quiz-Container">
+      {showResults ? (
+        <div className="Results-Container">
+          <h2>{formData.firstName}, you got it {selectedAnswer === questionData.correct_answer ? 'right!' : 'wrong.'}</h2>
+          {selectedAnswer !== questionData.correct_answer && (
+            <p>Correct answer: <span dangerouslySetInnerHTML={{ __html: questionData.correct_answer }} /></p>
+          )}.
+          <p>Wrong answers: {wrongCount}/3</p>
+          <button onClick={handleStartOver}>Next Question</button>
+        </div>
+
+      ) : (
+        <div className="Question-Container">
+          <h2 dangerouslySetInnerHTML={{ __html: questionData.question }} />
+          <div className="Answers-Container">
+            {answers.map((answer, i) => (
+              <div key={answer} className="Answer-Option">
+                <input
+                  type="radio"
+                  id={`answer-${i}`}
+                  name="answer"
+                  value={answer}
+                  onChange={e => setSelectedAnswer(e.target.value)}
+                />
+                <label htmlFor={`answer-${i}`} dangerouslySetInnerHTML={{ __html: answer }} />
+              </div>
+            ))}
           </div>
-        ))}
-        <button onClick={handleSubmit}>Submit</button>
-      </>
-    )}
-  </div>
-);
+          <button onClick={handleSubmit}>Submit</button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default Quiz;

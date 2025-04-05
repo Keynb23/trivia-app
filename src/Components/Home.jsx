@@ -22,11 +22,14 @@ function Home({ formData, setFormData, onSubmit }) {
   };
 
   return (
-    <div>
+    <div className="Home-Container">
+    <div className="Title-Container">
       <h1>Welcome to the Trivia Quiz!</h1>
       <p>Enter your name, select a category and difficulty, then submit to start!</p>
       <form onSubmit={handleSubmit}>
-        <div>
+
+      <div className="Menu-Container">
+        <div className="Name-Container">
           <label htmlFor="firstName">First Name:</label>
           <input
             type="text"
@@ -35,7 +38,8 @@ function Home({ formData, setFormData, onSubmit }) {
             onChange={e => setFormData({ ...formData, firstName: e.target.value })}
           />
         </div>
-        <div>
+
+        <div className="Category-Container">
           <label htmlFor="category">Category:</label>
           <select
             id="category"
@@ -46,7 +50,7 @@ function Home({ formData, setFormData, onSubmit }) {
             {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
           </select>
         </div>
-        <div>
+        <div className="Difficulty-Container">
           <label htmlFor="difficulty">Difficulty:</label>
           <select
             id="difficulty"
@@ -57,9 +61,11 @@ function Home({ formData, setFormData, onSubmit }) {
             {difficulties.map(diff => <option key={diff} value={diff}>{diff}</option>)}
           </select>
         </div>
+      </div>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <button type="submit">Start Quiz</button>
       </form>
+    </div>
     </div>
   );
 }

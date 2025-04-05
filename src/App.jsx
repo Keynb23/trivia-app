@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Quiz from './Components/Quiz';
 import Home from './Components/Home';
+import './App.css';
 
 function App() {
   const [formData, setFormData] = useState({ firstName: '', category: '', difficulty: '' });
